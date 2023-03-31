@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@expo/webpack-config": "^18.0.1",
-    "expo": "~48.0.9",
+    "expo": "~47.0.9",
     "expo-app-loading": "^2.1.1",
     "expo-font": "~11.1.1",
     "expo-splash-screen": "~0.18.1",
