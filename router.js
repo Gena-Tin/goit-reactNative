@@ -9,7 +9,7 @@ import Login from "./Screens/auth/LoginScreen";
 import Registration from "./Screens/auth/RegistrationScreen";
 import Home from "./Screens/auth/Home";
 
-export const useRoute = (isAuth) => {
+export const useRoute = ({ navigation }) => {
   return (
     <Stack.Navigator initialRouteName="Registration">
       <Stack.Screen
