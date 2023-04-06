@@ -1,192 +1,244 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "@react-navigation/native";
+import { registration } from "../../redux/auth/authOperation";
 import {
-  StyleSheet,
-  TextInput,
-  View,
   Text,
+  TextInput,
   TouchableOpacity,
+  View,
   Platform,
   KeyboardAvoidingView,
-  Keyboard,
-  Dimensions,
   TouchableWithoutFeedback,
-  ImageBackground,
+  Keyboard,
+  Image,
+  StyleSheet,
 } from "react-native";
 
-const initialState = {
+import AuthBackground from "../../components/AuthBackground";
+import UserAvatar from "../../components/UserAvatar";
+
+const initialValues = {
   login: "",
   email: "",
   password: "",
 };
 
-export default function Registration({ navigation }) {
+const RegistrationScreen = () => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  const [state, setstate] = useState(initialState);
+  const [state, setState] = useState(initialValues);
+  const [avatar, setAvatar] = useState(null);
+  const [showPassword, setShowPassword] = useState(true);
 
-  const [dimensions, setdimensions] = useState(
-    Dimensions.get("window").width - 16 * 2
-  );
+  const [borderInputColorLogin, setBorderInputColorLogin] = useState("#E8E8E8");
+  const [borderInputColorEmail, setBorderInputColorEmail] = useState("#E8E8E8");
+  const [borderInputColorPassword, setBorderInputColorPassword] =
+    useState("#E8E8E8");
 
-  useEffect(() => {
-    const onChange = () => {
-      const width = Dimensions.get("window").width - 16 * 2;
-      setdimensions(width);
-    };
-    dimensionsHandler = Dimensions.addEventListener("change", onChange);
-    return () => dimensionsHandler.remove();
-  }, []);
+  const dispatch = useDispatch();
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    // console.log(state);
-    setstate(initialState);
   };
+
+  const handleSubmit = () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+    dispatch(registration({ ...state, avatar }));
+    setState(initialValues);
+    setAvatar(null);
+  };
+
+  const handleShowPassword = () => setShowPassword(!showPassword);
+
   return (
-    <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ImageBackground
-          style={styles.image}
-          source={require("../../assets/images/bg.png")}
-        >
+    <AuthBackground>
+      <TouchableWithoutFeedback onPress={keyboardHide}>
+        <View style={styles.container}>
           <KeyboardAvoidingView
-            behavior={Platform.OS == "ios" ? "padding" : "height"}
+            behavior={Platform.OS === "ios" ? "padding" : "margin"}
           >
             <View
               style={{
                 ...styles.form,
                 paddingBottom: isShowKeyboard ? 10 : 110,
               }}
-              r
             >
+              <UserAvatar avatar={avatar} setAvatar={setAvatar} />
               <Text style={styles.title}>Registration</Text>
-              <View
-                style={{
-                  marginTop: 16,
-                  alignItems: "center",
+              <TextInput
+                placeholder="Login"
+                placeholderTextColor={"#BDBDBD"}
+                style={{ ...styles.input, borderColor: borderInputColorLogin }}
+                value={state.login}
+                onFocus={() => {
+                  setIsShowKeyboard(true), setBorderInputColorLogin("#FF6C00");
                 }}
-              >
+                onBlur={() => setBorderInputColorLogin("#E8E8E8")}
+                onSubmitEditing={keyboardHide}
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, login: value }))
+                }
+              />
+              <TextInput
+                placeholder="Email"
+                placeholderTextColor={"#BDBDBD"}
+                style={{ ...styles.input, borderColor: borderInputColorEmail }}
+                value={state.email}
+                onFocus={() => {
+                  setIsShowKeyboard(true), setBorderInputColorEmail("#FF6C00");
+                }}
+                onBlur={() => setBorderInputColorEmail("#E8E8E8")}
+                onSubmitEditing={keyboardHide}
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, email: value }))
+                }
+              />
+              <View style={styles.inputWrapper}>
                 <TextInput
-                  style={{ ...styles.input, width: dimensions }}
-                  placeholder="Login"
-                  placeholderTextColor="#bdbdbd"
-                  onFocus={() => setIsShowKeyboard(true)}
-                  value={state.login}
-                  onChangeText={(value) =>
-                    setstate((prevState) => ({ ...prevState, login: value }))
-                  }
-                />
-              </View>
-              <View style={{ marginTop: 16, alignItems: "center" }}>
-                <TextInput
-                  style={{ ...styles.input, width: dimensions }}
-                  placeholder="Email adress"
-                  placeholderTextColor="#bdbdbd"
-                  onFocus={() => setIsShowKeyboard(true)}
-                  value={state.email}
-                  onChangeText={(value) =>
-                    setstate((prevState) => ({ ...prevState, email: value }))
-                  }
-                />
-              </View>
-              <View style={{ marginTop: 16, alignItems: "center" }}>
-                <TextInput
-                  style={{ ...styles.input, width: dimensions }}
                   placeholder="Password"
-                  secureTextEntry={true}
-                  placeholderTextColor="#bdbdbd"
-                  onFocus={() => setIsShowKeyboard(true)}
+                  placeholderTextColor={"#BDBDBD"}
+                  secureTextEntry={showPassword}
+                  style={{
+                    ...styles.input,
+                    borderColor: borderInputColorPassword,
+                  }}
                   value={state.password}
+                  onFocus={() => {
+                    setIsShowKeyboard(true),
+                      setBorderInputColorPassword("#FF6C00");
+                  }}
+                  onBlur={() => setBorderInputColorPassword("#E8E8E8")}
+                  onSubmitEditing={keyboardHide}
                   onChangeText={(value) =>
-                    setstate((prevState) => ({ ...prevState, password: value }))
+                    setState((prevState) => ({ ...prevState, password: value }))
                   }
                 />
+                {showPassword ? (
+                  <Text
+                    style={styles.btnShowPassword}
+                    onPress={handleShowPassword}
+                  >
+                    Show
+                  </Text>
+                ) : (
+                  <Text
+                    style={styles.btnShowPassword}
+                    onPress={handleShowPassword}
+                  >
+                    Hide
+                  </Text>
+                )}
               </View>
-              <View style={{ alignItems: "center" }}>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={{ ...styles.button, width: dimensions }}
-                  // onPress={keyboardHide}
-                  onPress={() => {
-                    navigation.navigate("Home");
-                    {
-                      keyboardHide;
-                    }
-                  }}
-                >
-                  <Text style={styles.btnTitle}>Regiister</Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                style={styles.link}
-                onPress={() => navigation.navigate("Login")}
-              >
-                <Text style={{ color: "#1B4371", fontSize: 16 }}>
-                  Already have an account? Sign in
-                </Text>
-              </TouchableOpacity>
+              {!isShowKeyboard && (
+                <>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={handleSubmit}
+                  >
+                    <Text style={styles.btnText}>Sign up</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.text}>
+                    Have an account?
+                    <Link to={{ screen: "Login" }}> Sign in</Link>
+                  </Text>
+                </>
+              )}
             </View>
           </KeyboardAvoidingView>
-        </ImageBackground>
+        </View>
       </TouchableWithoutFeedback>
-    </View>
+    </AuthBackground>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    fontFamily: "roboto-regular",
     flex: 1,
-    backgroundColor: "#fff",
-  },
-  image: {
-    flex: 1,
-    resizeMode: "cover",
     justifyContent: "flex-end",
-    // alignItems: "center",
+    width: "100%",
   },
   form: {
-    backgroundColor: "#ecf0f1",
-    paddingTop: 92,
-    borderTopRightRadius: 25,
+    backgroundColor: "#fff",
     borderTopLeftRadius: 25,
-  },
-  input: {
-    fontFamily: "roboto-regular",
-    backgroundColor: "#f6f6f6",
-    borderWidth: 1,
-    borderColor: "#e8e8e8",
-    padding: 16,
-    borderRadius: 8,
-    color: "#bdbdbd",
-    padding: 16,
+    borderTopRightRadius: 25,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 92,
+    paddingBottom: 78,
   },
   title: {
-    fontFamily: "roboto-bold",
+    fontFamily: "Roboto-Medium",
     fontSize: 30,
-    lineHeight: 35,
     textAlign: "center",
-    color: "#212121",
+    marginBottom: 32,
+  },
+  input: {
     marginBottom: 16,
+    paddingLeft: 16,
+    paddingTop: 16,
+    paddingBottom: 15,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E8E8E8",
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    height: 50,
+  },
+  btnShowPassword: {
+    position: "absolute",
+    right: 16,
+    top: 16,
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    color: "#1B4371",
+  },
+  showPassword: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    color: "#1B4371",
   },
   button: {
-    backgroundColor: "#ff6c00",
+    backgroundColor: "#FF6C00",
     borderRadius: 100,
+    height: 51,
     alignItems: "center",
-    padding: 16,
-    marginTop: 43,
-    marginBottom: 16,
-  },
-  btnTitle: {
-    fontFamily: "roboto-regular",
-    color: "#f0f8ff",
-    fontSize: 16,
-  },
-  link: {
     justifyContent: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    fontFamily: "roboto-regular",
+    marginBottom: 16,
+    marginTop: 27,
+  },
+  btnText: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+  text: {
+    textAlign: "center",
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    color: "#1B4371",
+  },
+  userPhoto: {
+    width: 120,
+    height: 120,
+    backgroundColor: "#F6F6F6",
+    position: "absolute",
+    top: -60,
+    left: "50%",
+    transform: [{ translateX: -50 }],
+    borderRadius: 16,
+  },
+  addIcon: {
+    width: 25,
+    height: 25,
+    position: "absolute",
+    bottom: 14,
+    right: 0,
+    transform: [{ translateX: 12 }],
   },
 });
+
+export default RegistrationScreen;

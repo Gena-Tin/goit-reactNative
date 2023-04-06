@@ -1,32 +1,88 @@
-import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
 import React from "react";
-const Stack = createStackNavigator();
-const MainTab = createBottomTabNavigator();
+import { createStackNavigator } from "@react-navigation/stack";
+import { useSelector } from "react-redux";
+import { authSelectors } from "./redux/auth/authSelectors";
 
-import Login from "./Screens/auth/LoginScreen";
-import Registration from "./Screens/auth/RegistrationScreen";
-import Home from "./Screens/auth/Home";
+import RegistrationScreen from "./Screens/auth/RegistrationScreen";
+import LoginScreen from "./Screens/auth/LoginScreen";
+import HomeScreen from "./Screens/mainScreens/HomeScreen";
 
-export const useRoute = ({ navigation }) => {
+import MapScreen from "./Screens/nestedScreens/MapScreen";
+import CommentsScreen from "./Screens/nestedScreens/CommentsScreen";
+
+const AuthStack = createStackNavigator();
+const MainTab = createStackNavigator();
+
+const useRoute = () => {
+  const isAuth = useSelector(authSelectors.getIsAuth);
+
+  if (!isAuth) {
+    return (
+      <AuthStack.Navigator initialRouteName="Login">
+        <AuthStack.Screen
+          options={{ headerShown: false }}
+          name="Registration"
+          component={RegistrationScreen}
+        ></AuthStack.Screen>
+        <AuthStack.Screen
+          options={{ headerShown: false }}
+          name="Login"
+          component={LoginScreen}
+        ></AuthStack.Screen>
+      </AuthStack.Navigator>
+    );
+  }
   return (
-    <Stack.Navigator initialRouteName="Registration">
-      <Stack.Screen
+    <MainTab.Navigator>
+      <MainTab.Screen
         options={{ headerShown: false }}
-        name="Login"
-        component={Login}
-      />
-      <Stack.Screen
-        options={{ headerShown: false }}
-        name="Registration"
-        component={Registration}
-      />
-      <Stack.Screen
         name="Home"
-        component={Home}
-        options={{ headerShown: false }}
+        component={HomeScreen}
       />
-    </Stack.Navigator>
+      <MainTab.Screen
+        options={{
+          headerLeftLabelVisible: false,
+          title: "Map",
+          headerStyle: {
+            height: 88,
+
+            borderBottomWidth: 1,
+            borderBottomColor: "#b3b3b3",
+          },
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontFamily: "Roboto-Medium",
+            fontWeight: "bold",
+            fontSize: 17,
+            lineHeight: 22,
+          },
+        }}
+        name="Map"
+        component={MapScreen}
+      />
+      <MainTab.Screen
+        options={{
+          headerLeftLabelVisible: false,
+          title: "Comments",
+          headerStyle: {
+            height: 88,
+
+            borderBottomWidth: 1,
+            borderBottomColor: "#b3b3b3",
+          },
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontFamily: "Roboto-Medium",
+            fontWeight: "bold",
+            fontSize: 17,
+            lineHeight: 22,
+          },
+        }}
+        name="Comments"
+        component={CommentsScreen}
+      />
+    </MainTab.Navigator>
   );
 };
+
+export { useRoute };
